@@ -12,7 +12,10 @@ border:0;width:100%;box-sizing:border-box;cursor:pointer}
 text-decoration:none;font-size:15px}
 .small{font-size:13px;color:#5f6f63;margin:6px 0 14px} .upi{font-family:monospace;font-size:15px}
 .copy{margin-top:6px;padding:8px 14px;border-radius:8px;border:1px solid #1f7a3a;background:#fff;color:#1f7a3a;
-font-weight:600;font-size:14px} hr{border:0;border-top:1px solid #d6e2d6;margin:20px 0}
+font-weight:600;font-size:14px}
+#back{position:fixed;inset:0;background:#f3f7f2;display:none;flex-direction:column;justify-content:center;
+align-items:center;padding:24px;text-align:center} #back h2{font-size:26px;margin:8px 0}
+#back .btn{max-width:400px;font-size:24px;padding:22px} #back .other{color:#1f7a3a;font-size:15px;margin-top:6px} hr{border:0;border-top:1px solid #d6e2d6;margin:20px 0}
 </style></head><body><main>
 <div style="font-size:42px">🌿</div><h1>Plant Parlour</h1><p class="lead">Thank you for shopping with us!</p>
 <a id="pay" class="btn pay" href="upi://pay?pa=das.ravik444@okhdfcbank&pn=Plant%20Parlour&cu=INR">Pay with UPI</a>
@@ -22,8 +25,11 @@ font-weight:600;font-size:14px} hr{border:0;border-top:1px solid #d6e2d6;margin:
 <span class="upi" id="upi">das.ravik444@okhdfcbank</span><br><button class="copy" id="copy" type="button">Copy UPI ID</button></p>
 <hr>
 <a id="rev" class="btn rev" href="https://g.page/r/Ccw_NrRl81-iECE/review" target="_blank" rel="noopener">★ Review us on Google</a>
-<p class="small">Optional - you never need to review to pay. Thank you!</p>
+<p class="small">Optional - you never need to review to pay. After posting, tap <b>&larr; Back</b> to come back here and pay.</p>
 </main>
+<div id="back"><div style="font-size:48px">🌿</div><h2>Thank you!</h2><p class="lead">Now tap below to pay.</p>
+<a id="pay2" class="btn pay" href="upi://pay?pa=das.ravik444@okhdfcbank&pn=Plant%20Parlour&cu=INR">Pay with UPI</a>
+<a class="other" href="#" id="close">Other ways to pay</a></div>
 <script>
 (function () {
   var d = {"q": "pa=das.ravik444@okhdfcbank&pn=Plant%20Parlour&cu=INR", "apps": [["Google Pay", "com.google.android.apps.nbu.paisa.user", "gpay://upi/pay?"], ["PhonePe", "com.phonepe.app", "phonepe://pay?"], ["Paytm", "net.one97.paytm", "paytmmp://pay?"], ["BHIM", "in.org.npci.upiapp", "upi://pay?"]]}, ua = navigator.userAgent || "", android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua);
@@ -42,10 +48,23 @@ font-weight:600;font-size:14px} hr{border:0;border-top:1px solid #d6e2d6;margin:
     if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, function () { prompt("Copy this UPI ID:", t); });
     else prompt("Copy this UPI ID:", t);
   };
-  var rev = document.getElementById("rev");               // back from Google: pay is the next step
-  try {
-    if (rev) rev.addEventListener("click", function () { sessionStorage.setItem("reviewed", "1"); });
-    if (sessionStorage.getItem("reviewed")) document.querySelector(".lead").textContent = "Thank you for your review! Pay below.";
-  } catch (e) {}
+  // Back from Google's review form (it cannot send anyone back by itself): the page becomes "Thank you - tap to
+  // pay" and opens the payment apps once by itself; where the phone only allows that after a tap, the big button.
+  var rev = document.getElementById("rev"), back = document.getElementById("back"), pay = document.getElementById("pay");
+  document.getElementById("pay2").href = pay.href;
+  var left = false, shown = false;
+  function store(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+  function stored(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function cameBack() {
+    if (shown || !(left || stored("reviewing"))) return;
+    shown = true; left = false; store("reviewing", "");
+    back.style.display = "flex";
+    setTimeout(function () { window.location.href = pay.href; }, 400);
+  }
+  if (rev) rev.addEventListener("click", function () { left = true; shown = false; store("reviewing", "1"); });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") cameBack(); });
+  window.addEventListener("pageshow", cameBack);
+  window.addEventListener("focus", cameBack);
+  document.getElementById("close").onclick = function (e) { e.preventDefault(); back.style.display = "none"; };
 })();
 </script></body></html>
