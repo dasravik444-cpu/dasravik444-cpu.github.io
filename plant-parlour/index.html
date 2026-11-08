@@ -32,7 +32,7 @@ align-items:center;padding:24px;text-align:center} #back h2{font-size:26px;margi
 <a class="other" href="#" id="close">Other ways to pay</a></div>
 <script>
 (function () {
-  var d = {"q": "pa=das.ravik444@okhdfcbank&pn=Plant%20Parlour&cu=INR", "apps": [["Google Pay", "com.google.android.apps.nbu.paisa.user", "gpay://upi/pay?"], ["PhonePe", "com.phonepe.app", "phonepe://pay?"], ["Paytm", "net.one97.paytm", "paytmmp://pay?"], ["BHIM", "in.org.npci.upiapp", "upi://pay?"]]}, ua = navigator.userAgent || "", android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua);
+  var d = {"q": "pa=das.ravik444@okhdfcbank&pn=Plant%20Parlour&cu=INR", "apps": [["Google Pay", "com.google.android.apps.nbu.paisa.user", "gpay://upi/pay?"], ["PhonePe", "com.phonepe.app", "phonepe://pay?"], ["Paytm", "net.one97.paytm", "paytmmp://pay?"], ["BHIM", "in.org.npci.upiapp", "upi://pay?"]], "review": "https://g.page/r/Ccw_NrRl81-iECE/review"}, ua = navigator.userAgent || "", android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua);
   function intent(pkg) { return "intent://pay?" + d.q + "#Intent;scheme=upi;" + (pkg ? "package=" + pkg + ";" : "") + "end"; }
   if (android) document.getElementById("pay").href = intent("");      // the "Pay with..." chooser of all UPI apps
   var box = document.getElementById("apps");
@@ -60,6 +60,14 @@ align-items:center;padding:24px;text-align:center} #back h2{font-size:26px;margi
     shown = true; left = false; store("reviewing", "");
     back.style.display = "flex";
     setTimeout(function () { window.location.href = pay.href; }, 400);
+  }
+  // Android: the review opens in the Google Maps app (one Back from there returns straight to this page); a phone
+  // without Maps, or where Maps does not take the link, opens it in the browser as before.
+  if (rev && android) {
+    var r = d.review.slice("https://".length);
+    rev.href = "intent://" + r + "#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url="
+      + encodeURIComponent(d.review) + ";end";
+    rev.removeAttribute("target");
   }
   if (rev) rev.addEventListener("click", function () { left = true; shown = false; store("reviewing", "1"); });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") cameBack(); });
